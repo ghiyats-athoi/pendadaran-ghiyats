@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tanya Jawab Hafalan</title>
   <style>
     body {
@@ -44,6 +45,31 @@
     #controls {
       margin-top: 20px;
     }
+    @media (max-width: 600px) {
+  body {
+    padding: 15px;
+  }
+
+  .btn {
+    width: 100%;
+    font-size: 18px;
+  }
+
+  .question-box, .answer-box {
+    padding: 15px;
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  #controls {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
   </style>
 </head>
 <body>
