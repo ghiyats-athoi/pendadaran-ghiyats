@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Tanya Jawab Hafalan</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      text-align: center;
+      background-color: #f5f5f5;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #2980b9;
+    }
+
+    .question-box, .answer-box {
+      margin: 20px auto;
+      padding: 20px;
+      max-width: 600px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: none;
+    }
+
+    #controls {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Quiz Hafalan Interaktif</h1>
+
+  <div id="category-buttons">
+    <button class="btn" onclick="selectCategory('scm')">SCM</button>
+    <button class="btn" onclick="selectCategory('qc')">Quality Control</button>
+    <button class="btn" onclick="selectCategory('k3')">K3 & Ergonomi</button>
+    <button class="btn" onclick="selectCategory('manufaktur')">Proses Manufaktur</button>
+  </div>
+
+  <div class="question-box" id="questionBox">
+    <h2 id="questionText">Pertanyaan akan muncul di sini</h2>
+  </div>
+
+  <div class="answer-box" id="answerBox">
+    <h3 id="answerText">Jawaban akan muncul di sini</h3>
+  </div>
+
+  <div id="controls" style="display: none;">
+    <button class="btn" onclick="showAnswer()">Tampilkan Jawaban</button>
+    <button class="btn" onclick="nextQuestion()">Pertanyaan Selanjutnya</button>
+  </div>
+
+  <script>
+    // Simpan daftar pertanyaan dan jawaban per kategori
+    const questions = {
+        scm: [
+  {
+    q: "Apa itu SCM?",
+    a: `Supply Chain Management (SCM) adalah proses pengelolaan terkoordinasi dari seluruh aktivitas yang terlibat dalam perencanaan, pengadaan, produksi, distribusi, dan pelayanan produk atau jasa. SCM mencakup semua pihak, mulai dari supplier, manufacturer, distributor, hingga pelanggan, dengan tujuan meningkatkan efisiensi, kualitas layanan, dan kepuasan pelanggan.
+
+Bertujuan untuk memaksimalkan nilai pelanggan dan mendapatkan keunggulan kompetitif di pasar yang di dalamnya terdapat aliran material, informasi, dan keuangan.
+
+Urutan: supplier, manufacturer, distributor, wholesaler (grosir), ritel/toko, end customer.`
+  },
+  {
+    q: "Tujuan SCM",
+    a: `Tujuan utama SCM adalah memaksimalkan nilai atau surplus rantai pasok, yaitu selisih antara nilai produk bagi pelanggan dan total biaya yang dikeluarkan seluruh rantai pasok untuk memenuhi permintaan pelanggan secara efisien dan efektif.`
+  },
+  {
+    q: "Flow kiri ke kanan dalam SCM (SCOR Model)?",
+    a: `SCOR Model: PLAN – SOURCE – MAKE – DELIVER – RETURN
+
+🔁 Downstream (Ke Konsumen):
+• Aliran Material: Bahan baku → komponen → produk jadi → pelanggan
+• Aliran Informasi: Kapasitas produksi, tracking pengiriman, info teknis produk
+• Aliran Finansial: Invoice, TOP (syarat pembayaran), pembayaran diterima
+
+↩️ Upstream (Ke Pemasok):
+• Aliran Material: Retur, recycle, repair
+• Aliran Informasi: Info stok, data penjualan, RFQ/RFP
+• Aliran Finansial: Pembayaran ke supplier`
+  },
+  {
+    q: "Hulu hilir SCM itu apa? Contoh?",
+    a: `🔼 Hulu (Upstream): Dekat sumber bahan mentah. Contoh: Penambangan lithium, fabrikasi baja billet, produsen chip.
+🔽 Hilir (Downstream): Dekat konsumen akhir. Contoh: Distributor elektronik, ritel smartphone, layanan servis.`
+  },
+  {
+    q: "Apa itu Bullwhip Effect dan cara penanganannya?",
+    a: `Fenomena distorsi permintaan di rantai pasok. Perubahan kecil permintaan pelanggan → dampak besar ke produsen.
+
+📉 Contoh: Ritel naik 10% → distributor pesan +20% → produsen produksi +80% → overstock.
+
+🛠 Penanganan:
+1. Gunakan data real-time (POS, ERP)
+2. Terapkan CPFR
+3. Kecilkan batch order
+4. Stabilkan harga (hindari promo palsu)
+5. Pendekkan lead time`
+  },
+  {
+    q: "Kenapa harus ada rantai pasok?",
+    a: `• Efisiensi biaya karena pembelian besar-besaran.
+• Distributor bantu retailer dapat harga murah.
+• Distributor memungkinkan variasi produk lebih luas buat ritel.`
+  },
+  {
+    q: "Perbedaan vendor dan supplier?",
+    a: `• Vendor: Jasa/produk untuk operasional. Contoh: vendor software, vendor cleaning.
+• Supplier: Penyedia bahan baku produksi. Contoh: supplier singkong, supplier kemasan.
+
+Bisa overlap tergantung konteks.`
+  },
+  {
+    q: "Apa itu ISO 9001 dan klausul-klausulnya?",
+    a: `ISO 9001:2015 punya 10 klausul utama:
+1. Ruang Lingkup
+2. Acuan Normatif
+3. Istilah & Definisi
+4. Konteks Organisasi
+5. Kepemimpinan
+6. Perencanaan
+7. Dukungan
+8. Operasi
+9. Evaluasi Kinerja
+10. Peningkatan`
+  },
+  {
+    q: "Apa itu ERP?",
+    a: `ERP (Enterprise Resource Planning) = sistem manajemen terintegrasi untuk mengelola proses bisnis (produksi, HR, keuangan, SCM, dll) dalam satu platform.`
+  },
+  {
+    q: "Perbedaan proses manufaktur dan produksi?",
+    a: `• Produksi: Fungsi untuk menghasilkan produk (fokus output).
+• Manufaktur: Sistem keseluruhan untuk buat produk (mesin, QC, layout, dll).`
+  },
+  {
+    q: "Apa itu produktivitas, efektivitas, dan efisiensi?",
+    a: `• Produktivitas = Output/Input
+• Efektivitas = Capai tujuan
+• Efisiensi = Cara paling optimal
+
+Contoh:
+✅ Efektif tapi gak efisien = target tercapai tapi boros
+✅ Efisien tapi gak efektif = irit tapi target gagal`
+  },
+  {
+    q: "Tahapan PPIC itu apa aja?",
+    a: `1. Peramalan (Forecast)
+2. Perencanaan Agregat
+3. MPS (Master Production Schedule)
+4. RCCP (Rough Cut Capacity Planning)
+5. MRP (Material Requirement Planning)
+6. CRP (Capacity Requirement Planning)
+7. Order Pembelian
+8. Jadwal Produksi
+9. Penjadwalan ulang
+10. Pengendalian di lantai produksi`
+  },
+  {
+    q: "Contoh studi kasus jenis produksi: MTS, MTO, ATO, ETO?",
+    a: `• MTS: Biskuit, skincare (stok berdasarkan forecast)
+• MTO: Furniture custom
+• ATO: PC rakitan
+• ETO: Satelit, mesin industri
+
+📦 Sistem produksi:
+• Job Shop, Flow Shop, Batch Production → tergantung variasi & volume`
+  },
+  {
+    q: "Apa itu Line Balancing?",
+    a: `Distribusi beban kerja yang merata di lini produksi agar efisien.
+
+Tujuan: Kurangi idle time, naikkan efisiensi, optimasi stasiun kerja.
+
+Metode: LCR, RPW, hitung waktu siklus, bagi tugas, hitung jumlah stasiun optimal.`
+  },
+  {
+    q: "Apa itu Bottleneck?",
+    a: `Titik lemah yang membatasi aliran produksi. Bisa karena mesin lambat, tenaga kerja kurang, bahan habis, atau QC lama. Dampaknya: penundaan, output rendah.`
+  },
+  {
+    q: "Apa itu Theory of Constraints (TOC)?",
+    a: `TOC adalah metode manajemen yang fokus pada identifikasi kendala (constraints) utama yang menghambat throughput dan memperbaikinya.`
+  },
+  {
+    q: "Apa itu Drum-Buffer-Rope (DBR)?",
+    a: `Metode dari TOC untuk kontrol aliran produksi. Drum = kendala utama, Buffer = penyangga stok, Rope = sinyal tarik supaya ritme terjaga.`
+  },
+  {
+    q: "Apa itu MRP dan tipe lot sizing-nya?",
+    a: `MRP = sistem perencanaan kebutuhan material.
+
+Tipe lot sizing:
+1. Lot-for-Lot (LFL)
+2. Fixed Order Qty
+3. EOQ
+4. POQ
+5. PPB
+6. LUC
+7. LTC
+8. Wagner-Whitin
+9. Min/Max`
+  },
+  {
+    q: "Apa saja jenis pemborosan (waste) dalam Lean?",
+    a: `TIMWOOD:
+T – Transport
+I – Inventory
+M – Motion
+W – Waiting
+O – Overproduction
+O – Overprocessing
+D – Defect`
+  }
+],
+qc: [
+  {
+    q: "Apa itu kualitas?",
+    a: `Kualitas adalah tingkat keunggulan dari produk/jasa, ditentukan oleh kesesuaian standar, harapan pengguna, keandalan, konsistensi, dan manfaat.
+🧠 Tokoh:
+• Deming → PDCA
+• Crosby → Zero Defect
+• Taguchi → Target value + minimum variation`
+  },
+  {
+    q: "Apa bedanya QA, QC, dan QM?",
+    a: `• QC: Fokus ke produk akhir, deteksi cacat, reaktif
+• QA: Fokus ke proses, pencegahan, proaktif
+• QM: Gabungan keduanya, mencakup budaya kualitas organisasi`
+  },
+  {
+    q: "Apa itu 7 tools QC klasik?",
+    a: `1. Check Sheet
+2. Histogram
+3. Pareto Chart
+4. Fishbone Diagram
+5. Scatter Diagram
+6. Control Chart (UCL/LCL)
+7. Stratifikasi
+📊 Variabel: x̄, R, S | Atribut: p, np, c, u`
+  },
+  {
+    q: "Apa itu New 7 tools (manajemen mutu)?",
+    a: `1. Affinity Diagram
+2. Tree Diagram
+3. PDPC
+4. Matrix Diagram
+5. Interrelationship Digraph
+6. Prioritization Matrix
+7. Activity Network Diagram`
+  },
+  {
+    q: "Apa itu TQM (Total Quality Management)?",
+    a: `Filosofi manajemen kualitas menyeluruh, libatkan semua karyawan untuk continuous improvement.
+
+🔑 Prinsip:
+• Fokus pelanggan
+• Kaizen
+• Keterlibatan total
+• Pendekatan proses
+• Data-driven
+• Leadership visioner
+
+⚙️ Tools: PDCA, Six Sigma, QFD, Benchmarking`
+  },
+  {
+    q: "Apa saja 7 dimensi kualitas produk & jasa?",
+    a: `1. Performance
+2. Features
+3. Reliability
+4. Durability
+5. Conformance
+6. Aesthetics
+7. Serviceability
+➕ Perceived Quality`
+  },
+  {
+    q: "Apa saja metode improvement di QC?",
+    a: `A. Berbasis Proses:
+• PDCA
+• DMAIC (Six Sigma)
+• Kaizen
+
+B. Statistik:
+• SPC
+• DOE
+
+C. Lean:
+• 5S
+• Eliminasi waste
+
+D. Standar:
+• ISO 9001
+• TQM`
+  },
+  {
+    q: "Apa itu QCC?",
+    a: `Quality Control Circle = kelompok karyawan (3–10 orang) yang menyelesaikan masalah kualitas secara mandiri pakai tools QC.`
+  },
+  {
+    q: "Apa saja tahapan QCC?",
+    a: `1. Pilih masalah
+2. Kumpulkan data
+3. Analisis penyebab
+4. Rencana solusi
+5. Implementasi
+6. Evaluasi
+7. Standarisasi`
+  },
+  {
+    q: "Siapa aja yang terlibat dalam QCC?",
+    a: `• Tim karyawan lapangan
+• Fasilitator (manajer/ahli QC)
+• Pihak manajemen (support resource & approval)`
+  },
+  {
+    q: "Apa metode lain selain QCC?",
+    a: `• Six Sigma
+• Kaizen
+• TQM
+• Lean Manufacturing`
+  },
+  {
+    q: "Apa itu Six Sigma & DMAIC?",
+    a: `Metode berbasis statistik untuk reduksi cacat (≤3.4 per juta).  
+🔁 DMAIC:
+• Define – Measure – Analyze – Improve – Control`
+  },
+  {
+    q: "Apa itu proses sampling? (AQL & ANSI Z1.4)",
+    a: `Contoh:
+Lot: 600 | Defect: 12  
+Kode huruf: J → Sample: 80 → Ac=2, Re=3  
+❌ 12 > 3 → Lot REJECT  
+
+Gunakan tabel sampling untuk tentukan accept/reject`
+  },
+  {
+    q: "Apa bedanya korelasi dan relasi?",
+    a: `• Relasi: Hubungan umum (kualitatif)
+• Korelasi: Hubungan kuantitatif, terukur, arah & kekuatannya jelas (-1 s.d. +1)`
+  },
+  {
+    q: "Apa itu regresi linear & rumusnya?",
+    a: `Model hubungan antara Y (dependen) & X (independen)
+📈 Rumus: Y = a + bX
+Digunakan buat prediksi atau identifikasi pengaruh`
+  },
+  {
+    q: "Apa itu uji asumsi klasik?",
+    a: `1. Linearitas (plot, RESET)
+2. Homoskedastisitas (plot, Breusch-Pagan)
+3. Non-autokorelasi (Durbin-Watson)
+4. Normalitas residual (histogram, Shapiro-Wilk)
+5. Tidak ada multikolinearitas (VIF <10)`
+  },
+  {
+    q: "Apa itu pemodelan sistem?",
+    a: `Gabungan:
+• System thinking (interaksi antar subsistem)
+• Mind map, Rich Picture, Influence Diagram
+• Model matematik (Level of Detail)
+Tujuannya menyederhanakan kompleksitas.`
+  },
+  {
+    q: "Apa saja dimensi SERVQUAL?",
+    a: `1. Tangibles (bukti fisik)
+2. Reliability
+3. Responsiveness
+4. Assurance
+5. Empathy
+
+📐 Rumus: SERVQUAL = Persepsi – Ekspektasi`
+  },
+  {
+    q: "Apa saja jenis ISO yang relevan di QC?",
+    a: `• ISO 9001 – Mutu Umum
+• ISO 13485 – QC produk medis
+• ISO/TS 16949 – QC otomotif
+• ISO 28000 – SCM
+• ISO 45001 – K3
+• ISO 6385 – Ergonomi`
+  }
+],
+      k3: [
+  {
+    q: "Apa itu ergonomi mikro dan makro?",
+    a: `🔹 Mikro: Fokus ke individu & alat kerja (desain kursi, posisi tombol). Tujuannya ngurangin kelelahan & ningkatin kenyamanan.
+🔹 Makro: Fokus ke sistem kerja keseluruhan (layout pabrik, shift kerja, komunikasi tim). Tujuannya efisiensi organisasi.`
+  },
+  {
+    q: "Apa itu teknik industri?",
+    a: `Ilmu desain dan perbaikan sistem terintegrasi: manusia, material, mesin, metode, dan energi. Tujuan: tingkatin efisiensi dan efektivitas sistem kerja.`
+  },
+  {
+    q: "Hubungan manusia dengan faktor 6M lain?",
+    a: `Manusia mempengaruhi penggunaan mesin, pengelolaan material, dan metode kerja. Semua faktor saling terhubung dan memengaruhi hasil produksi.`
+  },
+  {
+    q: "Apa itu kompleksitas?",
+    a: `Kompleksitas = sistem dengan banyak komponen saling terkait → makin sulit dianalisis dan dimodifikasi.`
+  },
+  {
+    q: "Apa itu ergonomi?",
+    a: `Ilmu desain kerja agar sesuai kemampuan manusia, supaya nyaman, produktif, dan terhindar dari cedera.`
+  },
+  {
+    q: "Apa itu ergonomi lingkungan?",
+    a: `Fokus ke kondisi kerja: pencahayaan, suhu, ventilasi, kebisingan, desain ruang kerja supaya nyaman dan sehat.`
+  },
+  {
+    q: "Modul 1 – Stopwatch Time Study",
+    a: `Metode pengukuran waktu kerja pakai stopwatch. Komponen: waktu siklus, waktu normal, performance rating, waktu baku, allowance. Praktikum: perakitan ban & baterai, uji waktu layout berbeda.`
+  },
+  {
+    q: "Modul 2 – Biomekanika & Pengukuran Postur",
+    a: `Gunakan metode:
+• NIOSH RWL (hitung batas aman angkat beban)
+• RULA (postur atas)
+• REBA (postur seluruh tubuh)
+• LI (Lifting Index: LI <1 aman, ≥3 bahaya)
+• Trik RWL: Let's Have Very Delicious Ayam Fried Crispy`
+  },
+  {
+    q: "Modul 3 – Fisiologi Kerja",
+    a: `Fokus ke sistem tubuh saat kerja (denyut jantung, energi). Pakai metode CVL:
+• CVL <30% → aman
+• 30–60% → perlu perbaikan
+• 60–80% → kerja jangka pendek aja
+• >100% → dilarang kerja`
+  },
+  {
+    q: "Modul 4 – Antropometri",
+    a: `Studi ukuran tubuh manusia. Gunakan persentil:
+• P5 → tinggi vertikal (jangkauan minimum)
+• P95 → ruang gerak & lebar
+• P50 → desain umum
+Dipakai untuk desain alat/produk kerja agar sesuai pengguna.`
+  },
+  {
+    q: "Modul 5 – Lingkungan Fisik",
+    a: `Faktor lingkungan kerja: suhu, cahaya, kebisingan.
+• Suhu ideal: 24–27°C
+• Pencahayaan ideal: ≥300 lux
+• Kebisingan ideal: 50–70 dB (maks 85 dB)`
+  },
+  {
+    q: "Modul 6 – Ergonomi Kognitif",
+    a: `Fokus pada persepsi, reaksi, dan gangguan saat kerja. Praktikum: tes efek distraksi (bales chat, scroll IG, dll) terhadap kecelakaan. Uji: ANOVA, R-squared, Pareto untuk lihat pengaruh variabel ke safety.`
+  },
+  {
+    q: "Apa manfaat ergonomi?",
+    a: `Kurangi cedera, tambah kenyamanan, kurangi kelelahan, ningkatin produktivitas, dan ngurangin absen karena masalah kesehatan.`
+  },
+  {
+    q: "Contoh aplikasi antropometri dalam desain produk?",
+    a: `Contoh: Kursi Kidal Knockdown. Disesuaikan dengan data dimensi tubuh pengguna supaya nyaman & fungsional.`
+  },
+  {
+    q: "Workstation yang baik seperti apa?",
+    a: `• Posisi duduk & layar sejajar
+• Kursi ergonomis
+• Pencahayaan cukup
+• Alat mudah dijangkau
+• Area kerja rapi & bersih`
+  },
+  {
+    q: "Apa itu usability?",
+    a: `Tingkat kenyamanan & kemudahan pengguna saat pakai sistem. Ingat singkatan: LEMES
+L – Learnability
+E – Efficiency
+M – Memorability
+E – Errors
+S – Satisfaction`
+  },
+  {
+    q: "Contoh aplikasi modul praktikum di perusahaan?",
+    a: `Modul digunakan di PT Toyota, Yakult, Indofood, Dirgantara Indonesia, Astra Otoparts, Jasa Marga → untuk desain ulang kerja, kurangi cedera, efisiensi waktu kerja.`
+  },
+  {
+    q: "Apa itu K3?",
+    a: `Keselamatan & Kesehatan Kerja → upaya melindungi tenaga kerja dari kecelakaan & penyakit kerja.`
+  },
+  {
+    q: "Apa hubungan ergonomi dan K3?",
+    a: `Ergonomi bantu mencegah masalah K3 (postur buruk → cedera, alat kerja jelek → kecelakaan). Ergonomi = salah satu tools K3.`
+  },
+  {
+    q: "Apa itu manajemen risiko?",
+    a: `Proses identifikasi, analisis, dan penanganan risiko untuk ningkatin efisiensi & efektivitas kerja.`
+  },
+  {
+    q: "Apa bedanya hazard dan risk?",
+    a: `• Hazard = sumber bahaya nyata
+• Risk = potensi dampak kalau hazard terjadi`
+  },
+  {
+    q: "Apa itu profil risiko dan bedanya dengan risk profiling?",
+    a: `• Risk Profile = gambaran kumpulan risiko (bisa pakai peta risiko).
+• Risk Profiling = proses untuk memahami tingkat risiko berdasarkan kapasitas & aversi risiko.`
+  }
+],
+      manufaktur: [
+  {
+    q: "Apa itu gambar teknik?",
+    a: `Gambar teknik = metode komunikasi visual di bidang teknik untuk nyampein info teknis secara akurat & terstandar (ISO, ANSI, JIS, SNI). Tujuannya menjelaskan desain, spesifikasi, dan detail produk.`
+  },
+  {
+    q: "Apa isi materi proses manufaktur?",
+    a: `Bab proses manufaktur:
+1. Kerja Bangku – kerja manual di meja kerja
+2. Mesin Skrap – potong datar dgn pahat bolak-balik
+3. Mesin Bubut – potong benda berputar dgn pahat diam
+4. Mesin Milling – potong benda pakai pisau berputar
+5. Las – sambung logam dgn panas
+6. 3D Printing – bentuk objek 3D dari model digital`
+  },
+  {
+    q: "Sebutkan 10 istilah proses manufaktur & gambar teknik!",
+    a: `1. CAD – desain bantu komputer
+2. CAM – produksi bantu komputer
+3. CNC – mesin otomatis pakai program
+4. Injection Molding – cetak plastik
+5. Turning – bubut
+6. Milling – frais
+7. Casting – tuang logam cair
+8. Forging – tempa logam
+9. Welding – pengelasan
+10. Additive Manufacturing – 3D printing`
+  },
+  {
+    q: "Apa itu IKE & rumusnya?",
+    a: `IKE = Intensitas Konsumsi Energi
+Rumus: IKE = total konsumsi energi (kWh) / output produksi
+Semakin kecil IKE = makin efisien energi.`
+  },
+  {
+    q: "Apa makna produktivitas dalam IKE?",
+    a: `Semakin rendah IKE → energi dipakai makin efisien → produktivitas makin tinggi karena hasil banyak dgn energi minim.`
+  },
+  {
+    q: "Contoh analogi IKE di berbagai tempat?",
+    a: `• Rumah: kWh per orang
+• Kantor: kWh per jam kerja
+• Pabrik: kWh per unit produksi
+• Sekolah: kWh per siswa`
+  },
+  {
+    q: "Apa keunggulan 3D printing dibanding CNC?",
+    a: `3D Printing:
+• Additive (nambah bahan)
+• Desain kompleks ✔️
+• Limbah minim
+• Cocok prototipe
+
+CNC:
+• Subtractive (buang bahan)
+• Akurat buat massal
+• Kuat & presisi tinggi`
+  },
+  {
+    q: "Kerja bangku itu ngapain aja?",
+    a: `• Kikir: haluskan permukaan
+• Gergaji: potong
+• Bor: buat lubang
+• Tap: buat ulir
+• Gerinda: asah
+• Pahat: bentuk benda
+• Ukur: jangka sorong/mikrometer
+• Amplas: haluskan
+• Rakit: gabungin komponen
+• Potong plat: gunting plat`
+  },
+  {
+    q: "Apa beda alat dan mesin?",
+    a: `🔧 Alat:
+• Manual
+• Simpel (obeng, tang)
+⚙️ Mesin:
+• Perlu energi (listrik, bahan bakar)
+• Kompleks (bor, bubut, frais)`
+  },
+  {
+    q: "Apa itu PLA & ABS dalam 3D Printing?",
+    a: `PLA:
+• Mudah dicetak, biodegradable
+• Lemah panas, gampang meleleh
+
+ABS:
+• Tahan panas, kuat
+• Emisi asap beracun, tidak ramah lingkungan`
+  },
+  {
+    q: "Perbandingan PLA vs ABS, mana lebih bagus?",
+    a: `• PLA: Cetak gampang, tapi rapuh & lemah panas
+• ABS: Kuat & tahan panas, tapi sulit dicetak & tidak eco-friendly`
+  },
+  {
+    q: "Gimana cara setting mesin 3D Printing?",
+    a: `• Masukkan filamen ke extruder
+• Kalibrasi (auto-level)
+• Atur suhu:
+PLA: Nozzle 190–210°C, Bed 50–60°C
+ABS: Nozzle 230–250°C, Bed 90–110°C
+• Pilih file GCODE & print`
+  },
+  {
+    q: "Apa itu proyeksi gambar teknik?",
+    a: `• Proyeksi Eropa: Depan–Atas–Kiri (kiri ke kanan)
+• Proyeksi Amerika: Atas–Depan–Kanan (kiri ke kanan)`
+  },
+  {
+    q: "Apa itu isometrik?",
+    a: `Gambar 3D pada bidang 2D. Sudut antar sumbu 120°, tampilan dibuat 30° dari horizontal.`
+  },
+  {
+    q: "Apa itu etiket gambar teknik & isinya?",
+    a: `Etiket = kotak info teknis pada gambar (pojok kanan bawah)
+Isi: Judul, proyeksi, skala, ukuran, digambar oleh, diperiksa oleh, tanggal, dll. Ukuran: 25x185 mm`
+  },
+  {
+    q: "Fungsi etiket gambar teknik?",
+    a: `• Identifikasi gambar
+• Info teknis (ukuran, skala, proyeksi)
+• Akuntabilitas (siapa yg gambar/periksa)`
+  }
+]
+    };
+
+    let currentCategory = "";
+    let currentQuestionIndex = -1;
+    let shuffledQuestions = [];
+
+    function selectCategory(category) {
+      currentCategory = category;
+      shuffledQuestions = [...questions[category]].sort(() => 0.5 - Math.random());
+      currentQuestionIndex = 0;
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const questionBox = document.getElementById('questionBox');
+      const answerBox = document.getElementById('answerBox');
+      const controls = document.getElementById('controls');
+      const questionText = document.getElementById('questionText');
+      const answerText = document.getElementById('answerText');
+
+      if (currentQuestionIndex >= shuffledQuestions.length) {
+        questionText.innerText = "Pertanyaan habis. Silakan pilih kategori lain.";
+        answerText.innerText = "";
+        answerBox.style.display = "none";
+        return;
+      }
+
+      const current = shuffledQuestions[currentQuestionIndex];
+      questionText.innerText = current.q;
+      answerText.innerText = current.a;
+      questionBox.style.display = "block";
+      answerBox.style.display = "none";
+      controls.style.display = "block";
+    }
+
+    function showAnswer() {
+      document.getElementById('answerBox').style.display = "block";
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+      showQuestion();
+    }
+  </script>
+</body>
+</html>
